@@ -87,32 +87,71 @@
 - Node.js v18+ (bundled in `.tools/node/bin` in this repository)
 - npm v9+
 
-### 2. Environment Variables
-Backend configuration in `server/.env`:
+### 2. Environment Variables (.env.example)
+
+The server relies on environment variables defined in `server/.env`. A template file [`.env.example`](.env.example) (and [`server/.env.example`](server/.env.example)) is provided.
+
+To set up your environment variables:
+```bash
+# From the project root folder:
+cp .env.example server/.env
+
+# Or from inside the server folder:
+cd server && cp .env.example .env
+```
+
+#### Field Specifications:
+
+| Variable | Requirement | Default | Description & Fallback Behavior |
+|---|:---:|---|---|
+| `PORT` | **Required** | `5000` | Port number on which the Express backend server listens. |
+| `NODE_ENV` | **Required** | `development` | Environment mode (`development` or `production`). |
+| `JWT_SECRET` | **Required in Production** | `tripai_super_secret_jwt_key_2026_production_grade` | Secret key used to sign and verify JSON Web Tokens (JWT) for user authentication. Use a strong random key in production. |
+| `MONGO_URI` | *Optional* | `mongodb://127.0.0.1:27017/tripai` | Connection string for MongoDB database. **Fallback:** If MongoDB is not running locally, TripAI automatically falls back to an in-process persistent JSON store (`server/data/db.json`), so the app works out of the box with zero setup! |
+| `GEMINI_API_KEY` | *Optional* | *(empty)* | Google Gemini AI API key from [Google AI Studio](https://aistudio.google.com/app/apikey). **Fallback:** If absent or quota is exceeded, TripAI seamlessly uses its built-in rule-based intelligent synthesizer and concierge engine to generate complete itineraries and chat answers without crashing. |
+| `OPENWEATHER_API_KEY` | *Optional* | *(empty)* | API key from [OpenWeatherMap](https://openweathermap.org/api) for live destination weather. **Fallback:** If omitted, TripAI automatically provides realistic seasonal climate forecasts with transparent demo status indicators. |
+| `UNSPLASH_ACCESS_KEY` | *Optional* | *(empty)* | Access key from [Unsplash Developers](https://unsplash.com/developers) for real-time destination photography. **Fallback:** If omitted, TripAI uses its curated high-resolution photo catalog. |
+
+#### Example `.env` contents:
 ```env
 PORT=5000
 NODE_ENV=development
-MONGO_URI=mongodb://127.0.0.1:27017/tripai
 JWT_SECRET=tripai_super_secret_jwt_key_2026_production_grade
-GEMINI_API_KEY=your_gemini_api_key_here  # Optional: falls back gracefully to built-in AI synthesizer
-OPENWEATHER_API_KEY=your_openweather_key  # Optional: falls back to seasonal climate estimates
-UNSPLASH_ACCESS_KEY=your_unsplash_key    # Optional: falls back to curated photo catalog
+MONGO_URI=mongodb://127.0.0.1:27017/tripai
+GEMINI_API_KEY=
+OPENWEATHER_API_KEY=
+UNSPLASH_ACCESS_KEY=
 ```
 
 ### 3. Running the Application
-From the project root:
 
-**Terminal 1 (Backend API):**
+#### Option A: Quick Start (Recommended — Single Command)
+Run this command from the **project root folder** (`AI_Traveller`):
+
 ```bash
-export PATH="$(pwd)/.tools/node/bin:$PATH"
+./start-all.sh
+```
+
+> **Note:**
+> - Make sure you are in the project root directory (`/home/shubhamdhakre/AI_Traveller`).
+> - This script automatically configures the Node.js environment, boots the **Backend API** on [http://localhost:5000](http://localhost:5000), and launches the **Frontend Web App** on [http://localhost:5173](http://localhost:5173) concurrently.
+> - Press `Ctrl + C` in the terminal to stop both servers simultaneously.
+
+---
+
+#### Option B: Manual Start (Two Separate Terminals)
+
+**Terminal 1 — Backend API** (Run from `AI_Traveller/server` folder or project root):
+```bash
+# Navigate to the server directory from the project root:
 cd server
 npm start
 # Server runs on http://localhost:5000
 ```
 
-**Terminal 2 (Frontend Client):**
+**Terminal 2 — Frontend Client** (Run from the **project root** folder `AI_Traveller`):
 ```bash
-export PATH="$(pwd)/.tools/node/bin:$PATH"
+# From the project root:
 npm run dev
 # Frontend runs on http://localhost:5173
 ```
@@ -149,4 +188,3 @@ node test_flows.mjs
 | `POST` | `/api/trips/:id/duplicate`| Clone trip | Yes |
 | `POST` | `/api/favorites` | Toggle favorite destination | Yes |
 | `GET` | `/api/favorites` | Get user favorited places | Yes |
-# AI-Travel-Planner-Web-Application
